@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block crumbs %}<h1>Dashboard</h1><span class="sub">Last {{ days }} days</span>{% endblock %}
+{% block content %}
+<section class="kpis">
+  <div class="card kpi">
+    <div class="kpi-label">Net revenue</div>
+    <div class="kpi-value">{{ kpis.revenue_cents | money }}</div>
+    {% if kpis.revenue_delta_pct is not none %}
+    <div class="kpi-delta {{ 'up' if kpis.revenue_delta_pct >= 0 else 'down' }}">{{ '+' if kpis.revenue_delta_pct >= 0 }}{{ kpis.revenue_delta_pct }}% vs prior {{ days }} days</div>
+    {% endif %}
+  </div>
+  <div class="card kpi">
+    <div class="kpi-label">Units sold</div>
+    <div class="kpi-value">{{ kpis.units | num }}</div>
+    <div class="kpi-delta">{{ kpis.transactions | num }} transactions</div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-label">Average basket</div>
+    <div class="kpi-value">{{ kpis.avg_basket_cents | money(true) }}</div>
+    <div class="kpi-delta">per transaction</div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-label">Low-stock SKUs</div>
+    <div class="kpi-value">{{ kpis.low_stock | num }}</div>
+    <div class="kpi-delta"><a href="/t/{{ tenant.slug }}/inventory">View inventory</a></div>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head"><h2>Daily revenue</h2><span class="sub">Last {{ chart_days }} days</span></div>
+    <div class="chart-box"><canvas id="revenueChart" data-tenant="{{ tenant.slug }}" data-days="{{ chart_days }}"></canvas>
+      <div class="chart-loading" id="revenueLoading">Loading…</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Revenue by category</h2><span class="sub">Last {{ days }} days</span></div>
+    <div class="chart-box"><canvas id="categoryChart"></canvas></div>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head"><h2>Top stores</h2><a href="/t/{{ tenant.slug }}/stores?sort=revenue">All stores</a></div>
+    <table class="table">
+      <thead><tr><th>Store</th><th>Region</th><th class="num">Revenue</th><th class="num">Units</th></tr></thead>
+      <tbody>
+      {% for s in top %}
+        <tr><td><a href="/t/{{ tenant.slug }}/stores/{{ s.code }}">{{ s.name }}</a> <span class="code">{{ s.code }}</span></td>
+          <td>{{ s.region }}</td><td class="num">{{ s.revenue_cents | money }}</td><td class="num">{{ s.units | num }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Low stock</h2><a href="/t/{{ tenant.slug }}/inventory">See all {{ kpis.low_stock | num }}</a></div>
+    <table class="table">
+      <thead><tr><th>Title</th><th>Store</th><th class="num">On hand</th><th class="num">Min</th></tr></thead>
+      <tbody>
+      {% for r in low %}
+        <tr><td class="truncate" title="{{ r.title }}">{{ r.title }}</td><td><span class="code">{{ r.store_code }}</span></td>
+          <td class="num"><span class="pill {{ 'pill-warn' if r.on_hand == 0 else 'pill-soft' }}">{{ r.on_hand }}</span></td><td class="num">{{ r.reorder_point }}</td></tr>
+      {% else %}
+        <tr><td colspan="4" class="empty">Everything is above its reorder point.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+<script id="categoryData" type="application/json">{{ categories_json | safe }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/static/dashboard.js"></script>
+{% endblock %}

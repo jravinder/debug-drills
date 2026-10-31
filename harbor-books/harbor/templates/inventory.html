@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Inventory{% endblock %}
+{% block crumbs %}<h1>Inventory</h1><span class="sub">{{ total | num }} SKUs at or below reorder point</span>{% endblock %}
+{% block content %}
+<div class="card">
+  <table class="table">
+    <thead><tr><th>Store</th><th>Title</th><th>ISBN</th><th>Format</th><th class="num">On hand</th><th class="num">Reorder at</th><th class="num">Short by</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr><td><span class="code">{{ r.store_code }}</span></td><td class="truncate" title="{{ r.title }}">{{ r.title }}</td><td class="code">{{ r.isbn }}</td>
+        <td>{{ r.format }}</td><td class="num">{{ r.on_hand }}</td><td class="num">{{ r.reorder_point }}</td><td class="num">{{ r.short_by }}</td></tr>
+    {% else %}<tr><td colspan="7" class="empty">Everything is above its reorder point.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <nav class="pager">
+    <span class="sub">Page {{ page }} of {{ page_count }}</span>
+    <div class="pages">
+      {% if page > 1 %}<a href="?page={{ page - 1 }}">Previous</a>{% endif %}
+      {% if page < page_count %}<a href="?page={{ page + 1 }}">Next</a>{% endif %}
+    </div>
+  </nav>
+</div>
+{% endblock %}

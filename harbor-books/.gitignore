@@ -1,0 +1,11 @@
+*.db
+*.db-wal
+*.db-shm
+.venv/
+out/
+__pycache__/
+.pytest_cache/
+logs/*.log
+.drill/submit.*
+.drill/report.json
+.drill/bench.json

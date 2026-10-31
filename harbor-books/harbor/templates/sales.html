@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Sales{% endblock %}
+{% block crumbs %}<h1>Sales</h1><span class="sub">{{ lines | num }} lines · {{ units | num }} units · {{ revenue_cents | money }}</span>{% endblock %}
+{% block content %}
+<div class="card">
+  <form class="filters" method="get">
+    <select name="store">
+      <option value="">All stores</option>
+      {% for c in store_codes %}<option value="{{ c }}" {{ 'selected' if c == store }}>{{ c }}</option>{% endfor %}
+    </select>
+    <select name="days">
+      {% for d in (7, 30, 90) %}<option value="{{ d }}" {{ 'selected' if d == days }}>Last {{ d }} days</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn">Apply</button>
+  </form>
+  <table class="table">
+    <thead><tr><th>Sold</th><th>Receipt</th><th>Store</th><th>Title</th><th class="num">Qty</th><th class="num">Unit</th><th class="num">Discount</th><th class="num">Net</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr><td class="nowrap">{{ r.sold_at[:16] }}</td><td class="code">{{ r.receipt_no }}</td><td><span class="code">{{ r.store_code }}</span></td>
+        <td class="truncate" title="{{ r.title }}">{{ r.title }}</td><td class="num">{{ r.qty }}</td>
+        <td class="num">{{ r.unit_price_cents | money(true) }}</td><td class="num">{{ r.discount_cents | money(true) if r.discount_cents else '' }}</td>
+        <td class="num">{{ r.net_cents | money(true) }}</td></tr>
+    {% else %}<tr><td colspan="8" class="empty">No sales in this window.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <nav class="pager">
+    <span class="sub">Page {{ page | num }} of {{ page_count | num }}</span>
+    <div class="pages">
+      {% if page > 1 %}<a href="?store={{ store }}&days={{ days }}&page=1">First</a><a href="?store={{ store }}&days={{ days }}&page={{ page - 1 }}">Previous</a>{% endif %}
+      {% if page < page_count %}<a href="?store={{ store }}&days={{ days }}&page={{ page + 1 }}">Next</a><a href="?store={{ store }}&days={{ days }}&page={{ page_count }}">Last</a>{% endif %}
+    </div>
+  </nav>
+</div>
+{% endblock %}

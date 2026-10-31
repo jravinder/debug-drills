@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ store.name }}{% endblock %}
+{% block crumbs %}<a class="back" href="/t/{{ tenant.slug }}/stores">Stores</a><span class="sep">/</span><h1>{{ store.name }}</h1><span class="code">{{ store.code }}</span>{% endblock %}
+{% block content %}
+<section class="kpis">
+  <div class="card kpi"><div class="kpi-label">Net revenue ({{ days }}d)</div><div class="kpi-value">{{ perf.revenue_cents | money }}</div></div>
+  <div class="card kpi"><div class="kpi-label">Units sold</div><div class="kpi-value">{{ perf.units | num }}</div></div>
+  <div class="card kpi"><div class="kpi-label">SKUs carried</div><div class="kpi-value">{{ perf.skus | num }}</div></div>
+  <div class="card kpi"><div class="kpi-label">Low stock</div><div class="kpi-value">{{ perf.low_stock | num }}</div></div>
+</section>
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head"><h2>Daily revenue</h2><span class="sub">{{ store.city }} · {{ store.region }} · {{ store.sq_ft | num }} sq ft · opened {{ store.opened_on }}</span></div>
+    <div class="chart-box"><canvas id="storeChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Top titles</h2><span class="sub">Last {{ days }} days</span></div>
+    <table class="table">
+      <thead><tr><th>Title</th><th>Category</th><th class="num">Units</th><th class="num">Revenue</th></tr></thead>
+      <tbody>
+      {% for t in titles %}
+        <tr><td class="truncate" title="{{ t.title }} by {{ t.author }}">{{ t.title }}</td><td>{{ t.category }}</td><td class="num">{{ t.units }}</td><td class="num">{{ t.revenue_cents | money }}</td></tr>
+      {% else %}<tr><td colspan="4" class="empty">No sales in this window.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+<div class="card">
+  <div class="card-head"><h2>Low stock at this store</h2></div>
+  <table class="table">
+    <thead><tr><th>Title</th><th>ISBN</th><th>Format</th><th class="num">On hand</th><th class="num">Reorder at</th></tr></thead>
+    <tbody>
+    {% for r in low %}
+      <tr><td>{{ r.title }}</td><td class="code">{{ r.isbn }}</td><td>{{ r.format }}</td><td class="num">{{ r.on_hand }}</td><td class="num">{{ r.reorder_point }}</td></tr>
+    {% else %}<tr><td colspan="5" class="empty">Nothing below its reorder point.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+<script id="seriesData" type="application/json">{{ series_json | safe }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/static/store.js"></script>
+{% endblock %}

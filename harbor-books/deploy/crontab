@@ -1,0 +1,4 @@
+# Production crontab (app host, America/New_York). Output goes to the ops mailbox.
+MAILTO=ops-alerts@harborbooks.example
+15 2 * * *  cd /srv/harbor && .venv/bin/python jobs/reorder_export.py tidewater-books
+20 2 * * *  cd /srv/harbor && .venv/bin/python jobs/reorder_export.py lanternfield

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Stores{% endblock %}
+{% block crumbs %}<h1>Stores</h1><span class="sub">{{ total | num }} locations</span>{% endblock %}
+{% macro sort_link(key, label, cls="") -%}
+  {%- set next_dir = 'asc' if (sort == key and direction == 'desc') else ('desc' if sort == key else '') -%}
+  <th class="{{ cls }} sortable {{ 'sorted' if sort == key }}">
+    <a href="?q={{ q | urlencode }}&region={{ region | urlencode }}&sort={{ key }}{% if next_dir %}&dir={{ next_dir }}{% endif %}&page={{ page }}">{{ label }}{% if sort == key %} <span class="arrow">{{ '↓' if direction == 'desc' else '↑' }}</span>{% endif %}</a>
+  </th>
+{%- endmacro %}
+{% block content %}
+<div class="card">
+  <form class="filters" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search name, city or code">
+    <select name="region">
+      <option value="">All regions</option>
+      {% for r in regions %}<option value="{{ r }}" {{ 'selected' if r == region }}>{{ r }}</option>{% endfor %}
+    </select>
+    <input type="hidden" name="sort" value="{{ sort }}">
+    <button type="submit" class="btn">Apply</button>
+    {% if q or region %}<a class="btn-link" href="?">Clear</a>{% endif %}
+  </form>
+  <table class="table" id="storesTable">
+    <thead><tr>
+      {{ sort_link('code', 'Code') }}
+      {{ sort_link('name', 'Store') }}
+      {{ sort_link('region', 'Region') }}
+      {{ sort_link('revenue', 'Revenue (' ~ days ~ 'd)', 'num') }}
+      {{ sort_link('units', 'Units', 'num') }}
+      <th class="num">SKUs</th>
+      {{ sort_link('low_stock', 'Low stock', 'num') }}
+    </tr></thead>
+    <tbody>
+    {% for s in stores %}
+      <tr>
+        <td><span class="code">{{ s.code }}</span></td>
+        <td><a href="/t/{{ tenant.slug }}/stores/{{ s.code }}">{{ s.name }}</a>{% if s.status != 'open' %} <span class="pill pill-soft">{{ s.status }}</span>{% endif %}</td>
+        <td>{{ s.region }}</td>
+        <td class="num">{{ s.revenue_cents | money }}</td>
+        <td class="num">{{ s.units | num }}</td>
+        <td class="num">{{ s.skus | num }}</td>
+        <td class="num">{% if s.low_stock %}<span class="pill pill-warn">{{ s.low_stock }}</span>{% else %}0{% endif %}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7" class="empty">No stores match.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <nav class="pager" aria-label="Pagination">
+    <span class="sub">Page {{ page }} of {{ page_count }}</span>
+    <div class="pages">
+      {% if page > 1 %}<a href="?q={{ q | urlencode }}&region={{ region | urlencode }}&sort={{ sort }}&dir={{ direction }}&page={{ page - 1 }}">Previous</a>{% endif %}
+      {% for p in range(1, page_count + 1) %}
+        <a href="?q={{ q | urlencode }}&region={{ region | urlencode }}&sort={{ sort }}&dir={{ direction }}&page={{ p }}" class="{{ 'current' if p == page }}">{{ p }}</a>
+      {% endfor %}
+      {% if page < page_count %}<a href="?q={{ q | urlencode }}&region={{ region | urlencode }}&sort={{ sort }}&dir={{ direction }}&page={{ page + 1 }}">Next</a>{% endif %}
+    </div>
+  </nav>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Harbor Books{% endblock %}{% if tenant %} · {{ tenant.name }}{% endif %}</title>
+  <link rel="stylesheet" href="/static/app.css">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5v-12Z M13 4h5.5c.8 0 1.5.7 1.5 1.5v12c0 .8-.7 1.5-1.5 1.5H13V4Z" fill="currentColor"/></svg>
+      </span>
+      Harbor Books
+    </a>
+    {% if tenant %}
+    <nav class="nav">
+      <a href="/t/{{ tenant.slug }}/dashboard" class="{{ 'active' if section == 'dashboard' }}">Dashboard</a>
+      <a href="/t/{{ tenant.slug }}/stores" class="{{ 'active' if section == 'stores' }}">Stores</a>
+      <a href="/t/{{ tenant.slug }}/sales" class="{{ 'active' if section == 'sales' }}">Sales</a>
+      <a href="/t/{{ tenant.slug }}/inventory" class="{{ 'active' if section == 'inventory' }}">Inventory</a>
+    </nav>
+    {% endif %}
+    <div class="sidebar-foot">v3.8.2 · back office</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="crumbs">{% block crumbs %}{% endblock %}</div>
+      {% if tenant %}
+      <form class="tenant-switch" onsubmit="return false">
+        <label for="tenant">Account</label>
+        <select id="tenant" onchange="location.href='/t/' + this.value + '/{{ section or 'dashboard' }}'">
+          {% for t in tenants %}<option value="{{ t.slug }}" {{ 'selected' if t.slug == tenant.slug }}>{{ t.name }}</option>{% endfor %}
+        </select>
+      </form>
+      {% endif %}
+    </header>
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>
