@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}PRO {{ s.pro }}{% endblock %}
+{% block crumbs %}<a class="back" href="/t/{{ tenant.slug }}/shipments">Shipments</a><span class="sep">/</span><h1>PRO {{ s.pro }}</h1><span class="sub">{{ s.customer }}</span>{% endblock %}
+{% block content %}
+<section class="kpis">
+  <div class="card kpi"><div class="kpi-label">Origin</div><div class="kpi-value small">{{ s.origin_name }}</div><div class="kpi-delta code">{{ s.origin_code }}</div></div>
+  <div class="card kpi"><div class="kpi-label">Destination</div><div class="kpi-value small">{{ s.dest_name }}</div><div class="kpi-delta code">{{ s.dest_code }}</div></div>
+  <div class="card kpi"><div class="kpi-label">Freight</div><div class="kpi-value small">{{ s.pieces }} pcs · {{ '%.1f' | format(s.weight_kg) }} kg</div><div class="kpi-delta">{{ s.service }}</div></div>
+  <div class="card kpi"><div class="kpi-label">Status</div><div class="kpi-value small">{{ s.status | replace('_', ' ') }}</div><div class="kpi-delta">tendered {{ s.tendered_on }}</div></div>
+</section>
+<div class="card">
+  <div class="card-head"><h2>Route</h2><span class="sub">{{ legs | length }} leg{{ 's' if legs | length != 1 }}</span></div>
+  <table class="table">
+    <thead><tr><th>Leg</th><th>From</th><th>To</th><th>Driver</th><th>Departed (UTC)</th><th>Arrived (UTC)</th></tr></thead>
+    <tbody>
+    {% for l in legs %}
+      <tr><td>{{ l.hop }}</td><td><span class="code">{{ l.from_code }}</span> {{ l.from_city }}</td><td><span class="code">{{ l.to_code }}</span> {{ l.to_city }}</td>
+        <td>{{ l.driver }}</td><td class="nowrap">{{ l.departed_at[:16] }}</td><td class="nowrap">{{ l.arrived_at[:16] }}</td></tr>
+    {% else %}<tr><td colspan="6" class="empty">Not dispatched yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="card">
+  <div class="card-head"><h2>Stop events</h2></div>
+  <table class="table">
+    <thead><tr><th>Event</th><th>Depot</th><th>Promised by (depot time)</th><th>Scanned (UTC)</th></tr></thead>
+    <tbody>
+    {% for st in stops %}
+      <tr><td>{{ st.kind }}</td><td><span class="code">{{ st.depot_code }}</span> <span class="sub">{{ st.utc_offset_min | clock }}</span></td>
+        <td class="nowrap">{{ st.window_end[:16] }}</td><td class="nowrap">{{ st.arrived_at[:16] }}</td></tr>
+    {% else %}<tr><td colspan="4" class="empty">No scans yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

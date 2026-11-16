@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block crumbs %}<h1>Dashboard</h1><span class="sub">Last {{ days }} days</span>{% endblock %}
+{% block content %}
+<section class="kpis">
+  <div class="card kpi">
+    <div class="kpi-label">On-time delivery</div>
+    <div class="kpi-value">{{ kpis.on_time_pct | pct }}</div>
+    <div class="kpi-delta">{{ kpis.on_time | num }} of {{ kpis.deliveries | num }} deliveries</div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-label">Shipments tendered</div>
+    <div class="kpi-value">{{ kpis.shipments | num }}</div>
+    <div class="kpi-delta"><a href="/t/{{ tenant.slug }}/shipments">View shipments</a></div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-label">Stop events</div>
+    <div class="kpi-value">{{ kpis.stop_events | num }}</div>
+    <div class="kpi-delta">pickups, transfers and deliveries</div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-label">Active drivers</div>
+    <div class="kpi-value">{{ kpis.active_drivers | num }}</div>
+    <div class="kpi-delta"><a href="/t/{{ tenant.slug }}/drivers">View drivers</a></div>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head"><h2>On-time delivery by day</h2><span class="sub">Last {{ chart_days }} days</span></div>
+    <div class="chart-box"><canvas id="onTimeChart" data-tenant="{{ tenant.slug }}" data-days="{{ chart_days }}"></canvas>
+      <div class="chart-loading" id="onTimeLoading">Loading…</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Stop events by region</h2><span class="sub">Last {{ days }} days</span></div>
+    <div class="chart-box"><canvas id="regionChart"></canvas></div>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head"><h2>Depots needing attention</h2><a href="/t/{{ tenant.slug }}/depots">All depots</a></div>
+    <table class="table">
+      <thead><tr><th>Depot</th><th>Region</th><th class="num">Deliveries</th><th class="num">On time</th></tr></thead>
+      <tbody>
+      {% for d in worst %}
+        <tr><td>{{ d.name }} <span class="code">{{ d.code }}</span></td><td>{{ d.region }}</td>
+          <td class="num">{{ d.deliveries | num }}</td><td class="num">{{ d.on_time_pct | pct }}</td></tr>
+      {% else %}
+        <tr><td colspan="4" class="empty">No deliveries in this window.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Recent late deliveries</h2><span class="sub">Last 7 days</span></div>
+    <table class="table">
+      <thead><tr><th>PRO</th><th>Customer</th><th>Depot</th><th class="num">Late by</th></tr></thead>
+      <tbody>
+      {% for r in late %}
+        <tr><td><a class="code" href="/t/{{ tenant.slug }}/shipments/{{ r.pro }}">{{ r.pro }}</a></td>
+          <td class="truncate" title="{{ r.customer }}">{{ r.customer }}</td><td><span class="code">{{ r.depot_code }}</span></td>
+          <td class="num"><span class="pill pill-warn">{{ r.late_min }} min</span></td></tr>
+      {% else %}
+        <tr><td colspan="4" class="empty">No late deliveries this week.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+<script id="regionData" type="application/json">{{ regions_json | safe }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/static/dashboard.js"></script>
+{% endblock %}

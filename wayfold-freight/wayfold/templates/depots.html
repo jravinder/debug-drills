@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Depots{% endblock %}
+{% block crumbs %}<h1>Depots</h1><span class="sub">{{ rows | length }} depots · {{ deliveries | num }} deliveries · {{ on_time_pct | pct }} on time · last {{ days }} days</span>{% endblock %}
+{% block content %}
+<div class="card">
+  <form class="filters" method="get">
+    <select name="region">
+      <option value="">All regions</option>
+      {% for r in regions %}<option value="{{ r }}" {{ 'selected' if r == region }}>{{ r }}</option>{% endfor %}
+    </select>
+    <select name="days">
+      {% for d in windows %}<option value="{{ d }}" {{ 'selected' if d == days }}>Last {{ d }} days</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn">Apply</button>
+    {% if region %}<a class="btn-link" href="?days={{ days }}">Clear</a>{% endif %}
+  </form>
+  <table class="table">
+    <thead><tr><th>Code</th><th>Depot</th><th>Region</th><th>Clock</th><th class="num">Drivers</th>
+      <th class="num">Deliveries</th><th class="num">Late</th><th class="num">On time</th></tr></thead>
+    <tbody>
+    {% for d in rows %}
+      <tr><td><span class="code">{{ d.code }}</span></td>
+        <td>{{ d.name }}{% if d.status != 'active' %} <span class="pill pill-soft">{{ d.status }}</span>{% endif %}</td>
+        <td>{{ d.region }}</td><td class="code">{{ d.utc_offset_min | clock }}</td><td class="num">{{ d.drivers | num }}</td>
+        <td class="num">{{ d.deliveries | num }}</td><td class="num">{{ d.late | num }}</td>
+        <td class="num">{{ d.on_time_pct | pct }}</td></tr>
+    {% else %}<tr><td colspan="8" class="empty">No depots match.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

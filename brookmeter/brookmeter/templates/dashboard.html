@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block crumbs %}<h1>Dashboard</h1><span class="sub">Live subscriptions, last {{ days }} days of invoicing</span>{% endblock %}
+{% block content %}
+<section class="kpis">
+  <div class="card kpi">
+    <div class="kpi-label">MRR</div>
+    <div class="kpi-value">{{ kpis.mrr_cents | money }}</div>
+    <div class="kpi-delta">ARR {{ kpis.arr_cents | money }}</div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-label">Live subscriptions</div>
+    <div class="kpi-value">{{ kpis.live | num }}</div>
+    <div class="kpi-delta">{{ kpis.trialing | num }} trialing · {{ kpis.past_due | num }} past due</div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-label">Invoiced, last {{ days }} days</div>
+    <div class="kpi-value">{{ kpis.invoiced_cents | money }}</div>
+    <div class="kpi-delta">{{ kpis.invoices | num }} invoices</div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-label">Churned, last {{ days }} days</div>
+    <div class="kpi-value">{{ kpis.churned | num }}</div>
+    <div class="kpi-delta">canceled subscriptions</div>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head"><h2>Invoiced by month</h2><span class="sub">Issued invoices, excluding void</span></div>
+    <div class="colchart">
+      {% for m in months %}
+      <div class="col" title="{{ m.month }}: {{ m.cents | money }}">
+        <span class="val">{{ m.cents | compact }}</span>
+        <div class="bar" style="height: {{ m.pct }}%"></div>
+        <span class="lab">{{ m.label }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>MRR by plan</h2><span class="sub">{{ plans | length }} plans</span></div>
+    <div class="hbars">
+      {% for p in plans %}
+      <div class="hbar-row">
+        <span>{{ p.name }} <span class="sub">· {{ p.subscriptions | num }} subs</span></span>
+        <span class="amt">{{ p.mrr_cents | money }}</span>
+        <div class="track"><div class="fill" style="width: {{ p.pct }}%"></div></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head"><h2>Largest accounts</h2><a href="/t/{{ tenant.slug }}/subscriptions?status=active">All subscriptions</a></div>
+    <table class="table">
+      <thead><tr><th>Customer</th><th>Country</th><th class="num">Subs</th><th class="num">MRR</th></tr></thead>
+      <tbody>
+      {% for c in top %}
+        <tr><td>{{ c.name }}</td><td>{{ c.country }}</td><td class="num">{{ c.subscriptions }}</td><td class="num">{{ c.mrr_cents | money }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Recent invoices</h2><a href="/t/{{ tenant.slug }}/invoices">All invoices</a></div>
+    <table class="table">
+      <thead><tr><th>Invoice</th><th>Customer</th><th class="num">Total</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for i in recent %}
+        <tr><td><a class="code" href="/t/{{ tenant.slug }}/invoices/{{ i.number }}">{{ i.number }}</a></td>
+          <td class="truncate" title="{{ i.customer }}">{{ i.customer }}</td>
+          <td class="num">{{ i.total_cents | money(true) }}</td><td><span class="status status-{{ i.status }}">{{ i.status }}</span></td></tr>
+      {% else %}
+        <tr><td colspan="4" class="empty">No invoices yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

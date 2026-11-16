@@ -1,0 +1,5 @@
+services:
+  brookmeter:
+    build: .
+    ports:
+      - "8767:8767"

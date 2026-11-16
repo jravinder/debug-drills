@@ -1,0 +1,4 @@
+# Production crontab (app host, UTC). Output goes to the ops mailbox.
+MAILTO=ops-alerts@wayfold.example
+30 7 * * *  cd /srv/wayfold && .venv/bin/python jobs/manifest_export.py ironvale-freight
+30 9 * * *  cd /srv/wayfold && .venv/bin/python jobs/manifest_export.py brookhollow-cartage

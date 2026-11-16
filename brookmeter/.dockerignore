@@ -1,0 +1,8 @@
+.venv
+.git
+.drill
+*.db
+*.db-wal
+*.db-shm
+out
+logs

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Wayfold{% endblock %}{% if tenant %} · {{ tenant.name }}{% endif %}</title>
+  <link rel="stylesheet" href="/static/app.css">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 6.5C3 5.7 3.7 5 4.5 5h9c.8 0 1.5.7 1.5 1.5V9h2.6c.5 0 .9.2 1.2.6l2 2.6c.1.2.2.4.2.7V16c0 .6-.4 1-1 1h-1a2.5 2.5 0 0 1-5 0h-4a2.5 2.5 0 0 1-5 0H4c-.6 0-1-.4-1-1V6.5Z" fill="currentColor"/></svg>
+      </span>
+      Wayfold
+    </a>
+    {% if tenant %}
+    <nav class="nav">
+      <a href="/t/{{ tenant.slug }}/dashboard" class="{{ 'active' if section == 'dashboard' }}">Dashboard</a>
+      <a href="/t/{{ tenant.slug }}/depots" class="{{ 'active' if section == 'depots' }}">Depots</a>
+      <a href="/t/{{ tenant.slug }}/shipments" class="{{ 'active' if section == 'shipments' }}">Shipments</a>
+      <a href="/t/{{ tenant.slug }}/drivers" class="{{ 'active' if section == 'drivers' }}">Drivers</a>
+    </nav>
+    {% endif %}
+    <div class="sidebar-foot">v2.6.0 · carrier back office</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="crumbs">{% block crumbs %}{% endblock %}</div>
+      {% if tenant %}
+      <form class="tenant-switch" onsubmit="return false">
+        <label for="tenant">Account</label>
+        <select id="tenant" onchange="location.href='/t/' + this.value + '/{{ section or 'dashboard' }}'">
+          {% for t in tenants %}<option value="{{ t.slug }}" {{ 'selected' if t.slug == tenant.slug }}>{{ t.name }}</option>{% endfor %}
+        </select>
+      </form>
+      {% endif %}
+    </header>
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>
