@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Drivers{% endblock %}
+{% block crumbs %}<h1>Drivers</h1><span class="sub">{{ total | num }} drivers</span>{% endblock %}
+{% block content %}
+<div class="card">
+  <table class="table">
+    <thead><tr><th>Driver</th><th>Home depot</th><th>License</th><th>Status</th><th class="num">Stop events ({{ days }}d)</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr><td>{{ r.name }}</td><td><span class="code">{{ r.depot_code }}</span> {{ r.depot_city }}</td><td>{{ r.license }}</td>
+        <td><span class="pill {{ 'pill-soft' if r.status == 'active' else 'pill-plain' }}">{{ r.status }}</span></td><td class="num">{{ r.stops | num }}</td></tr>
+    {% else %}<tr><td colspan="5" class="empty">No drivers.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <nav class="pager">
+    <span class="sub">Page {{ page | num }} of {{ page_count | num }}</span>
+    <div class="pages">
+      {% if page > 1 %}<a href="?page={{ page - 1 }}">Previous</a>{% endif %}
+      {% if page < page_count %}<a href="?page={{ page + 1 }}">Next</a>{% endif %}
+    </div>
+  </nav>
+</div>
+{% endblock %}

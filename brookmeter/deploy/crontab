@@ -1,0 +1,5 @@
+# Production crontab (app host, UTC). Output goes to the ops mailbox.
+# A run that exceeds the timeout is killed; ops re-run it by hand from the runbook.
+MAILTO=ops-alerts@brookmeter.example
+05 1 * * *  cd /srv/brookmeter && timeout 900 .venv/bin/python jobs/invoice_run.py pinecrest-labs
+10 1 * * *  cd /srv/brookmeter && timeout 900 .venv/bin/python jobs/invoice_run.py halvard

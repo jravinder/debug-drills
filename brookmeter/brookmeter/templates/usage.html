@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Usage{% endblock %}
+{% block crumbs %}<h1>Usage</h1><span class="sub">Metered usage, last {{ days }} days (UTC)</span>{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-head"><h2>Daily usage</h2><span class="sub">All meters</span></div>
+  <div class="colchart dense">
+    {% for d in series %}
+    <div class="col" title="{{ d.day }}: {{ d.quantity | num }}"><div class="bar" style="height: {{ d.pct }}%"></div></div>
+    {% endfor %}
+  </div>
+</div>
+<div class="card">
+  <div class="card-head"><h2>By plan</h2><span class="sub">Charges at list unit price</span></div>
+  <table class="table">
+    <thead><tr><th>Plan</th><th>Meter</th><th class="num">Subscriptions</th><th class="num">Quantity</th><th class="num">Unit price</th><th class="num">Charges</th></tr></thead>
+    <tbody>
+    {% for m in meters %}
+      <tr><td>{{ m.plan }}</td><td><span class="code">{{ m.meter }}</span></td><td class="num">{{ m.subscriptions | num }}</td>
+        <td class="num">{{ m.quantity | num }}</td><td class="num">{{ '%.4f' % m.unit_price_cents }}¢</td><td class="num">{{ m.charges_cents | money(true) }}</td></tr>
+    {% else %}
+      <tr><td colspan="6" class="empty">No metered usage in this window.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Shipments{% endblock %}
+{% block crumbs %}<h1>Shipments</h1><span class="sub">{{ total | num }} shipments</span>{% endblock %}
+{% block content %}
+<div class="card">
+  <form class="filters" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="PRO number or customer">
+    <button type="submit" class="btn">Search</button>
+    {% if q %}<a class="btn-link" href="?">Clear</a>{% endif %}
+  </form>
+  <table class="table">
+    <thead><tr><th>PRO</th><th>Tendered</th><th>Customer</th><th>Origin</th><th>Destination</th><th>Service</th>
+      <th class="num">Pieces</th><th class="num">Weight (kg)</th><th class="num">Legs</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr><td><a class="code" href="/t/{{ tenant.slug }}/shipments/{{ r.pro }}">{{ r.pro }}</a></td><td class="nowrap">{{ r.tendered_on }}</td>
+        <td class="truncate" title="{{ r.customer }}">{{ r.customer }}</td><td><span class="code">{{ r.origin_code }}</span></td>
+        <td><span class="code">{{ r.dest_code }}</span></td><td>{{ r.service }}</td><td class="num">{{ r.pieces }}</td>
+        <td class="num">{{ '%.1f' | format(r.weight_kg) }}</td><td class="num">{{ r.legs }}</td>
+        <td><span class="pill {{ 'pill-soft' if r.status == 'delivered' else 'pill-plain' }}">{{ r.status | replace('_', ' ') }}</span></td></tr>
+    {% else %}<tr><td colspan="10" class="empty">No shipments match.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <nav class="pager">
+    <span class="sub">Page {{ page | num }} of {{ page_count | num }}</span>
+    <div class="pages">
+      {% if page > 1 %}<a href="?q={{ q | urlencode }}&page={{ page - 1 }}">Previous</a>{% endif %}
+      {% if page < page_count %}<a href="?q={{ q | urlencode }}&page={{ page + 1 }}">Next</a>{% endif %}
+    </div>
+  </nav>
+</div>
+{% endblock %}

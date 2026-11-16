@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Brookmeter{% endblock %}{% if tenant %} · {{ tenant.name }}{% endif %}</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 18h3v-6H4v6Zm6.5 0h3V6h-3v12ZM17 18h3V10h-3v8Z" fill="currentColor"/></svg>
+      </span>
+      Brookmeter
+    </a>
+    {% if tenant %}
+    <nav class="nav">
+      <a href="/t/{{ tenant.slug }}/dashboard" class="{{ 'active' if section == 'dashboard' }}">Dashboard</a>
+      <a href="/t/{{ tenant.slug }}/subscriptions" class="{{ 'active' if section == 'subscriptions' }}">Subscriptions</a>
+      <a href="/t/{{ tenant.slug }}/invoices" class="{{ 'active' if section == 'invoices' }}">Invoices</a>
+      <a href="/t/{{ tenant.slug }}/usage" class="{{ 'active' if section == 'usage' }}">Usage</a>
+    </nav>
+    {% endif %}
+    <div class="sidebar-foot">v2.14.0 · billing back office</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="crumbs">{% block crumbs %}{% endblock %}</div>
+      {% if tenant %}
+      <form class="tenant-switch" onsubmit="return false">
+        <label for="tenant">Account</label>
+        <select id="tenant" onchange="location.href='/t/' + this.value + '/{{ section or 'dashboard' }}'">
+          {% for t in tenants %}<option value="{{ t.slug }}" {{ 'selected' if t.slug == tenant.slug }}>{{ t.name }}</option>{% endfor %}
+        </select>
+      </form>
+      {% endif %}
+    </header>
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Subscriptions{% endblock %}
+{% block crumbs %}<h1>Subscriptions</h1><span class="sub">{{ total | num }} matching</span>{% endblock %}
+{% block content %}
+<div class="card">
+  <form class="filters" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Customer name or email">
+    <select name="status">
+      <option value="">Any status</option>
+      {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if s == status }}>{{ s.replace('_', ' ') }}</option>{% endfor %}
+    </select>
+    <button class="btn" type="submit">Filter</button>
+  </form>
+  <table class="table">
+    <thead><tr><th>Customer</th><th>Plan</th><th>Status</th><th class="num">Seats</th><th class="num">Anchor</th><th>Started</th><th class="num">MRR</th></tr></thead>
+    <tbody>
+    {% for s in rows %}
+      <tr><td>{{ s.customer }} <span class="code">{{ s.email }}</span></td><td>{{ s.plan }}</td>
+        <td><span class="status status-{{ s.status }}">{{ s.status.replace('_', ' ') }}</span></td>
+        <td class="num">{{ s.quantity }}</td><td class="num">{{ s.anchor_day }}</td><td class="nowrap">{{ s.started_on }}</td>
+        <td class="num">{{ s.mrr_cents | money }}</td></tr>
+    {% else %}
+      <tr><td colspan="7" class="empty">No subscriptions match.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <div class="pager">
+    <span class="sub">Page {{ page }} of {{ page_count | num }}</span>
+    <div class="pages">
+      {% if page > 1 %}<a href="?q={{ q }}&status={{ status }}&page={{ page - 1 }}">Previous</a>{% endif %}
+      {% if page < page_count %}<a href="?q={{ q }}&status={{ status }}&page={{ page + 1 }}">Next</a>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

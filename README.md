@@ -31,8 +31,8 @@ make up            # installs dependencies, seeds data (~15 s), serves http://12
 | Kit | Domain | Stack | Faults | Status |
 |---|---|---|---|---|
 | [harbor-books](harbor-books/) | Back office for bookstore chains: sales, stores, nightly reorder file | FastAPI, SQLite, Jinja2 | 4 | Available |
-| fleet (name to come) | Shipments and on-time delivery dashboard | Same template | 4 | Planned |
-| billing (name to come) | Subscriptions, invoices, MRR (monthly recurring revenue) | Same template | 4 | Planned |
+| [wayfold-freight](wayfold-freight/) | Freight carrier back office: shipments, depots, on-time delivery, driver manifests | FastAPI, SQLite, Jinja2 | 4 | Available |
+| [brookmeter](brookmeter/) | Subscription billing: plans, metered usage, invoices, MRR (monthly recurring revenue) | FastAPI, SQLite, Jinja2 | 4 | Available |
 
 All companies, people and data in the kits are fictional.
 
